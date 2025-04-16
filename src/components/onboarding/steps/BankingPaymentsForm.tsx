@@ -1,9 +1,16 @@
 
+import { useForm } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FormControl, FormItem, FormLabel } from "@/components/ui/form";
+import { 
+  Form,
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormLabel 
+} from "@/components/ui/form";
 
 interface BankingPaymentsFormProps {
   formData: any;
@@ -18,6 +25,14 @@ const BankingPaymentsForm = ({ formData, updateFormData }: BankingPaymentsFormPr
     { id: "cards", label: "Credit/Debit Cards" },
     { id: "wallet", label: "Digital Wallets" },
   ];
+
+  const form = useForm({
+    defaultValues: {
+      bankAccounts: formData.bankAccounts || 0,
+      paymentMethods: formData.paymentMethods || [],
+      loans: formData.loans || false
+    }
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateFormData({ [e.target.name]: parseInt(e.target.value) || 0 });
@@ -38,54 +53,55 @@ const BankingPaymentsForm = ({ formData, updateFormData }: BankingPaymentsFormPr
   };
   
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="bankAccounts">How many bank accounts or wallets are linked to the business?</Label>
-        <Input
-          id="bankAccounts"
-          name="bankAccounts"
-          type="number"
-          value={formData.bankAccounts || ""}
-          onChange={handleChange}
-          placeholder="e.g., 2"
-          min={0}
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label className="block mb-2">Do you accept payments via:</Label>
+    <Form {...form}>
+      <div className="space-y-4">
         <div className="space-y-2">
-          {paymentMethods.map((method) => (
-            <FormItem key={method.id} className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
+          <Label htmlFor="bankAccounts">How many bank accounts or wallets are linked to the business?</Label>
+          <Input
+            id="bankAccounts"
+            name="bankAccounts"
+            type="number"
+            value={formData.bankAccounts || ""}
+            onChange={handleChange}
+            placeholder="e.g., 2"
+            min={0}
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label className="block mb-2">Do you accept payments via:</Label>
+          <div className="space-y-2">
+            {paymentMethods.map((method) => (
+              <div key={method.id} className="flex flex-row items-start space-x-3 space-y-0">
                 <Checkbox
+                  id={method.id}
                   checked={formData.paymentMethods?.includes(method.id)}
                   onCheckedChange={(checked) => handleCheckboxChange(method.id, !!checked)}
                 />
-              </FormControl>
-              <FormLabel className="font-normal">{method.label}</FormLabel>
-            </FormItem>
-          ))}
+                <Label htmlFor={method.id} className="font-normal">{method.label}</Label>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        <div className="space-y-2 pt-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="loans" className="cursor-pointer">Any loans or EMIs currently active?</Label>
+            <Switch
+              id="loans"
+              checked={formData.loans}
+              onCheckedChange={handleSwitchChange}
+            />
+          </div>
+        </div>
+        
+        <div className="bg-secondary/50 p-4 rounded-lg mt-4">
+          <p className="text-sm text-muted-foreground">
+            Understanding your banking arrangements helps us integrate with your existing financial infrastructure and provide better cash flow management.
+          </p>
         </div>
       </div>
-      
-      <div className="space-y-2 pt-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="loans" className="cursor-pointer">Any loans or EMIs currently active?</Label>
-          <Switch
-            id="loans"
-            checked={formData.loans}
-            onCheckedChange={handleSwitchChange}
-          />
-        </div>
-      </div>
-      
-      <div className="bg-secondary/50 p-4 rounded-lg mt-4">
-        <p className="text-sm text-muted-foreground">
-          Understanding your banking arrangements helps us integrate with your existing financial infrastructure and provide better cash flow management.
-        </p>
-      </div>
-    </div>
+    </Form>
   );
 };
 
